@@ -77,7 +77,7 @@ section{padding:70px 5%;max-width:1420px;margin:auto;scroll-margin-top:18px}sect
  seen=seen.filter(k=>keys.includes(k));
  function update(){const v=Math.round(100*seen.length/keys.length);document.getElementById('meter').style.width=v+'%';document.getElementById('percent').textContent=v+' %'}
  document.querySelectorAll('.level').forEach(a=>a.addEventListener('click',()=>{if(!seen.includes(a.dataset.level)){seen.push(a.dataset.level);try{localStorage.setItem('watteau-v7-progress',JSON.stringify(seen))}catch(e){}update()}}));update();
- const files=['111919','112037','112529','113058','113620','115113','120024','120827','121010','121346','123228','144929'];
+ const files=['111919','112037','112529','113058','113620','115113','120024','120827','121010','121346','141654','144738'];
  const gallery=document.getElementById('gallery');
  files.forEach((s,i)=>{const button=document.createElement('button');button.type='button';button.setAttribute('aria-label','Agrandir photographie '+(i+1));const img=document.createElement('img');img.loading='lazy';img.alt='Souvenir numéro '+(i+1)+' de la Paris Games Week';img.src='../photos/IMG_20261023_'+s+'.jpg';button.appendChild(img);button.addEventListener('click',()=>{document.getElementById('big').src=img.src;document.getElementById('big').alt=img.alt;document.getElementById('viewer').showModal()});gallery.appendChild(button)});
  document.getElementById('close-viewer').addEventListener('click',()=>document.getElementById('viewer').close());
