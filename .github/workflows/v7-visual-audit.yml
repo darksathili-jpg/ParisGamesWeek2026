@@ -1,0 +1,35 @@
+name: V7 visual audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'apercu-v7/**'
+      - '.github/scripts/visual-audit-v7.cjs'
+      - '.github/workflows/v7-visual-audit.yml'
+permissions:
+  contents: read
+jobs:
+  visual-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Capture 4 viewports and verify composition
+        run: |
+          python3 -m http.server 8788 >/tmp/watteau-http.log 2>&1 &
+          node .github/scripts/visual-audit-v7.cjs
+      - name: Keep captures and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watteau-v7-real-browser-proof
+          path: visual-proof-v7/
+          retention-days: 21
