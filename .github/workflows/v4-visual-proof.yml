@@ -1,0 +1,31 @@
+name: V4 visual proof
+on:
+  push:
+    branches: [design/v4-fidelite-maquette]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Capture real page at three sizes
+        run: |
+          python3 -m http.server 8765 > /tmp/http.log 2>&1 &
+          node .github/scripts/capture-v4.cjs
+      - name: Upload screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watteau-v4-visual-proof
+          path: visual-proof/
+          retention-days: 14
