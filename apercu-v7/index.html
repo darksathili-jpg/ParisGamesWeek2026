@@ -54,6 +54,10 @@ section{padding:70px 5%;max-width:1420px;margin:auto;scroll-margin-top:18px}sect
 .hud{background:linear-gradient(125deg,#020712f7,#071a39ee);border:2px solid #04c4f2;box-shadow:inset 0 0 22px #0b99e730,0 0 20px #02baff22}.hud h2{letter-spacing:.035em}
 @media(max-width:1180px){.brand{min-width:218px}.brand-text{font-size:16px}}
 @media(max-width:900px){.brand{min-width:0}.brand-official{width:48px;height:48px}.brand-text{font-size:17px}.title-lockup .word{transform:scaleX(1.07)}.title-lockup .word2{transform:scaleX(1.07)}.level-icon svg{width:32px;height:32px}}
+
+/* V7.1.1 — empêcher les brosses artistiques de créer un défilement horizontal mobile */
+@media(max-width:900px){.arena{overflow:hidden}.title-lockup::before{left:-16%;width:132%}}
+@media(max-width:570px){.title-lockup .word,.title-lockup .word2{transform:scaleX(1.02)}}
 </style></head><body>
 <header class="site-nav"><a class="brand" href="#accueil"><img class="brand-official" src="../assets/logo/pwg-watteau.png" alt="Visuel officiel Paris Games Week du lycée Watteau"><span class="brand-text">LYCÉE WATTEAU<small>VALENCIENNES</small></span></a>
 <nav class="menu" aria-label="Navigation"><a href="#accueil" aria-current="page"><span class="ico">⌂</span> ACCUEIL</a><a href="#arrival"><span class="ico">✦</span> EXPÉRIENCE</a><a href="#photos"><span class="ico">▣</span> GALERIE</a><a href="#replay"><span class="ico">▶</span> VIDÉOS</a><a href="#missions"><span class="ico">⌘</span> MISSIONS NSI</a></nav><span class="nav-motto">APPRENDRE · EXPLORER · PARTAGER</span></header>
