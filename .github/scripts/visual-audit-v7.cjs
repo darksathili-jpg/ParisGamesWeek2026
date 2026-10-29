@@ -15,7 +15,7 @@ const path = require('path');
    await page.screenshot({path:'visual-proof-v7/'+name+'.png',fullPage:name==='mobile'});
    const metrics=await page.evaluate(()=>{
       const r=(x)=>{const el=document.querySelector(x);if(!el)return null;const b=el.getBoundingClientRect();return {x:Math.round(b.x),y:Math.round(b.y),width:Math.round(b.width),height:Math.round(b.height),right:Math.round(b.right),bottom:Math.round(b.bottom)}};
-      return {title:r('.title-lockup'),hero:r('.hero-photo'),cards:r('.levels'),nav:r('.site-nav'),cardCount:document.querySelectorAll('.level').length,brokenImmediate:Array.from(document.querySelectorAll('img')).filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.getAttribute('src')),overflow:document.documentElement.scrollWidth>innerWidth+3,viewport:{w:innerWidth,h:innerHeight}};
+      return {title:r('.title-lockup'),hero:r('.hero-photo'),cards:r('.levels'),nav:r('.site-nav'),cardCount:document.querySelectorAll('.level').length,brokenImmediate:Array.from(document.querySelectorAll('img[src]')).filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.getAttribute('src')),overflow:document.documentElement.scrollWidth>innerWidth+3,viewport:{w:innerWidth,h:innerHeight}};
    });
    const cards=metrics.cards;
    const clipped=width>900 && (!cards || cards.bottom>height+2 || cards.x<0 || cards.right>width+2);
