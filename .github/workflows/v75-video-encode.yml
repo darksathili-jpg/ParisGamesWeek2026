@@ -1,0 +1,46 @@
+name: V7.5 optimize and stage video files
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/scripts/v75-encode.sh'
+      - '.github/workflows/v75-video-encode.yml'
+permissions:
+  contents: write
+jobs:
+  optimize-videos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Ensure FFmpeg is installed
+        run: |
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg
+          fi
+      - name: Encode four 720p H.264/AAC clips and calculate savings
+        run: bash .github/scripts/v75-encode.sh
+      - name: Store original and optimized size report plus visual previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watteau-v75-encoding-proof
+          path: |
+            visual-proof-v75/
+            apercu-v75/media/
+          retention-days: 21
+      - name: Publish verified lighter clips into isolated preview folder
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- apercu-v75/media/
+          if git diff --cached --quiet; then
+            echo "No video changes to publish"
+          else
+            git commit -m "media: publish four optimized V7.5 replay clips"
+            git push origin HEAD:main
+          fi
