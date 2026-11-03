@@ -1,0 +1,30 @@
+name: V7.5 ASR caption drafts for audio review
+on:
+  push:
+    branches: [feature/v75-accessible-replay]
+    paths:
+      - '.github/scripts/v75-asr-drafts.py'
+      - '.github/workflows/v75-asr-candidates.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  draft-captions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install speech recognition for off-line transcript drafting
+        run: python -m pip install faster-whisper
+      - name: Generate unverified draft VTT (never deployed)
+        run: python .github/scripts/v75-asr-drafts.py
+      - name: Save caption drafts privately for human audio verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v75-unverified-caption-drafts
+          path: visual-proof-v75/caption-drafts/
+          retention-days: 14
