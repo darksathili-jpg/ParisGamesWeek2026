@@ -1,0 +1,78 @@
+name: V7.5 fast live-site smoke QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/v75-live-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - name: Wait for published V7.5 preview
+        run: |
+          for attempt in $(seq 1 22); do
+            code=$(curl -L -o /dev/null -s -w '%{http_code}' 'https://darksathili-jpg.github.io/ParisGamesWeek2026/apercu-v75/')
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 10
+          done
+          exit 1
+      - name: Install Chromium directly without downloading the photo repository
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Check the actual GitHub Pages site in a browser
+        run: |
+          cat > v75-live.cjs <<'SCRIPT'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          (async()=>{
+           fs.mkdirSync('proof-v75-live',{recursive:true});
+           const browser=await chromium.launch({headless:true});
+           const base='https://darksathili-jpg.github.io/ParisGamesWeek2026/apercu-v75/';
+           const report=[];
+           for(const [name,w,h] of [['desktop',1536,1024],['mobile',390,844]]){
+            const page=await browser.newPage({viewport:{width:w,height:h},deviceScaleFactor:1});
+            let errors=[];page.on('pageerror',e=>errors.push(e.message));
+            const response=await page.goto(base,{waitUntil:'domcontentloaded',timeout:45000});
+            await page.evaluate(async()=>Promise.all([...document.querySelectorAll('.hero-photo,.level img')].map(x=>x.decode().catch(()=>null))));
+            await page.screenshot({path:'proof-v75-live/'+name+'.png',fullPage:name==='mobile'});
+            const data=await page.evaluate(()=>({cards:document.querySelectorAll('.level').length,videos:document.querySelectorAll('#replay video').length,descriptions:document.querySelectorAll('.video-scene').length,broken:[...document.querySelectorAll('.hero-photo,.level img')].filter(x=>x.complete&&x.naturalWidth===0).map(x=>x.src),overflow:document.documentElement.scrollWidth>innerWidth+3}));
+            report.push({name,status:response.status(),...data,errors});
+            if(name==='desktop'){
+             await page.locator('#replay').screenshot({path:'proof-v75-live/replay-desktop.png'});
+             const films=await page.locator('#replay video').evaluateAll(v=>v.map(x=>({src:x.querySelector('source')?.getAttribute('src'),poster:x.getAttribute('poster'),preload:x.preload,autoplay:x.autoplay})));
+             const network=[];
+             for(const film of films){
+              const url=new URL(film.src,base).href;
+              const r=await page.request.head(url);
+              network.push({src:film.src,status:r.status(),length:r.headers()['content-length'],type:r.headers()['content-type']});
+             }
+             report.push({films,network});
+             const video=page.locator('#replay video').first();
+             const playback=await video.evaluate(async x=>{x.muted=true;try{await x.play();await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('media-stalled')),8000);x.addEventListener('timeupdate',()=>{if(x.currentTime>.1){clearTimeout(timer);resolve()}},{once:true})});const time=x.currentTime;x.pause();return {pass:time>.1,time}}catch(e){return {pass:false,error:String(e)}}});
+             report.push({playback});
+            }
+            await page.close();
+           }
+           await browser.close();
+           fs.writeFileSync('proof-v75-live/report.json',JSON.stringify(report,null,2));
+           console.log(JSON.stringify(report,null,2));
+           const data=report.filter(x=>x.name);
+           const filmData=report.find(x=>x.films);
+           const playback=report.find(x=>x.playback);
+           if(data.some(x=>x.status!==200||x.cards!==5||x.videos!==4||x.descriptions!==4||x.broken.length||x.overflow||x.errors.length)||filmData.network.some(x=>![200,206].includes(x.status))||filmData.films.some(x=>x.autoplay||x.preload!=='none')||!playback.playback.pass)process.exitCode=1;
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          
+          SCRIPT
+          node v75-live.cjs
+      - name: Upload screenshot and playback evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watteau-v75-live-site-proof
+          path: proof-v75-live/
+          retention-days: 21
