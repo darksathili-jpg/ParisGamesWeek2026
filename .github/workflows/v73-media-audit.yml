@@ -1,0 +1,26 @@
+name: V7.3 media editorial audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/scripts/v73-contact-sheet.py'
+      - '.github/workflows/v73-media-audit.yml'
+permissions:
+  contents: read
+jobs:
+  contact-sheets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Pillow
+        run: python3 -m pip install --break-system-packages Pillow
+      - name: Build labeled photo contact sheets
+        run: python3 .github/scripts/v73-contact-sheet.py
+      - name: Keep visual evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: watteau-v73-media-review
+          path: visual-proof-v73/media/
+          retention-days: 21
