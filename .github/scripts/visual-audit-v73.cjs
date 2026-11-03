@@ -53,6 +53,7 @@ const path = require('path');
  await page2.locator('#grade').click();
  checks.quizCorrect=(await page2.locator('#grade-result').textContent()).includes('3 / 3');
  fs.writeFileSync('visual-proof-v7/v73/interactions.json',JSON.stringify(checks,null,2));
+ const geometry=await page2.locator('.level').evaluateAll(cards=>cards.map(c=>{const rect=el=>{const r=el.getBoundingClientRect();return [Math.round(r.top),Math.round(r.bottom),Math.round(r.height)]};return {card:rect(c),heading:rect(c.querySelector('.level-top')),image:rect(c.querySelector('img')),caption:rect(c.querySelector('.level-desc')),style:getComputedStyle(c.querySelector('.level-body')).gridTemplateRows}}));fs.writeFileSync('visual-proof-v7/v73/card-geometry.json',JSON.stringify(geometry,null,2));
  await page2.close();
  if(Object.values(checks).some(v=>!v))process.exitCode=1;
 
