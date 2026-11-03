@@ -29,10 +29,12 @@ print('Processed',len(meta),'photos across',math.ceil(len(photos)/24),'sheets')
 
 
 # Video review: one frame at 2s, labeled by the original file name.
-import shutil, subprocess, tempfile
+import shutil, subprocess, tempfile, re
+import imageio_ffmpeg
+ffmpeg_bin = shutil.which('ffmpeg') or imageio_ffmpeg.get_ffmpeg_exe()
 video_files=sorted(Path('videos').glob('*.mp4'))
 video_meta=[]
-if shutil.which('ffmpeg'):
+if ffmpeg_bin:
     grid=Image.new('RGB',(4*TW,5*TH),(9,17,35))
     draw=ImageDraw.Draw(grid)
     with tempfile.TemporaryDirectory() as temp:
@@ -40,7 +42,7 @@ if shutil.which('ffmpeg'):
             x=index%4*TW;y=index//4*TH
             frame=Path(temp)/(p.stem+'.jpg')
             try:
-                subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-ss','2','-i',str(p),'-frames:v','1','-y',str(frame)],check=True,timeout=25,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+                subprocess.run([ffmpeg_bin,'-hide_banner','-loglevel','error','-ss','2','-i',str(p),'-frames:v','1','-y',str(frame)],check=True,timeout=25,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
                 with Image.open(frame) as im:
                     im=ImageOps.exif_transpose(im).convert('RGB')
                     thumb=ImageOps.fit(im,(TW-10,TH-42),method=Image.Resampling.LANCZOS)
@@ -50,8 +52,9 @@ if shutil.which('ffmpeg'):
                 ok=False
                 draw.text((x+5,y+20),'VIDEO NON EXTRAITE',fill=(255,130,130),font=font)
             draw.text((x+6,y+TH-34),f'{index+1:02d} · {p.stem.replace("VID_20261023_","")}',fill=(223,242,250),font=font)
-            video_meta.append({'name':p.name,'number':index+1,'frame_extracted':ok})
+            video_meta.append({'name':p.name,'number':index+1,'frame_extracted':ok,'size_mb':round(p.stat().st_size/1e6,2)})
     grid.save(out/'videos-contact.jpg',quality=88)
+    print('Actual source video frames available for editorial review.')
 else:
     video_meta=[{'name':p.name,'frame_extracted':False,'reason':'ffmpeg unavailable'} for p in video_files]
 (out/'video-index.json').write_text(json.dumps(video_meta,indent=2),encoding='utf-8')
