@@ -1,4 +1,4 @@
-// Verify V7 and V7.3, including 26-photo filters, quiz, and the corrected card geometry.
+// Verify V7 and V7.3, including 26-photo filters, quiz, and measured card image/caption geometry.
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
