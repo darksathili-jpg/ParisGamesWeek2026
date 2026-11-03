@@ -12,6 +12,8 @@ const path = require('path');
    const response=await page.goto('http://127.0.0.1:8788/apercu-v74/',{waitUntil:'domcontentloaded',timeout:30000});
    await page.locator('.hero-photo').waitFor({state:'visible'});
    await page.evaluate(async()=>{const imgs=Array.from(document.querySelectorAll('img'));for(const i of imgs)i.loading='eager';await Promise.all(imgs.map(i=>i.decode().catch(()=>null)))});
+   await page.waitForFunction(()=>Array.from(document.querySelectorAll('.hero-photo,.level img')).every(i=>i.complete&&i.naturalWidth>0),{timeout:30000});
+   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
    await page.screenshot({path:'visual-proof-v7/v74/'+name+'.png',fullPage:name==='mobile'});
    const metrics=await page.evaluate(()=>{
       const r=(x)=>{const el=document.querySelector(x);if(!el)return null;const b=el.getBoundingClientRect();return {x:Math.round(b.x),y:Math.round(b.y),width:Math.round(b.width),height:Math.round(b.height),right:Math.round(b.right),bottom:Math.round(b.bottom)}};
