@@ -72,6 +72,10 @@
 @media(max-width:350px){.title-lockup .word{font-size:12vw}.title-lockup .word2{font-size:11.9vw}.start{font-size:12px}.hud-right{grid-template-columns:98px 1fr 34px}.level-name b{font-size:15px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 
+
+/* V7.3 card-grid containment repair */
+@media(min-width:901px){.levels{grid-template-rows:minmax(0,1fr)}.level{min-height:0}.level-body{min-height:0}}
+@media(max-width:900px){.levels{grid-template-rows:none;grid-auto-rows:auto}.level{min-height:0}.level-body{min-height:0}}
 </style></head><body>
 <header class="site-nav"><a class="brand" href="#accueil"><img class="brand-official" src="../assets/logo/pwg-watteau.png" alt="Visuel officiel Paris Games Week du lycée Watteau"><span class="brand-text">LYCÉE WATTEAU<small>VALENCIENNES</small></span></a>
 <nav class="menu" aria-label="Navigation"><a href="#accueil" aria-current="page"><span class="ico">⌂</span> ACCUEIL</a><a href="#arrival"><span class="ico">✦</span> EXPÉRIENCE</a><a href="#photos"><span class="ico">▣</span> GALERIE</a><a href="#replay"><span class="ico">▶</span> VIDÉOS</a><a href="#missions"><span class="ico">⌘</span> MISSIONS NSI</a></nav><span class="nav-motto">APPRENDRE · EXPLORER · PARTAGER</span></header>
