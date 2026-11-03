@@ -30,7 +30,7 @@ const path = require('path');
  await browser.close();
  const cp=require('node:child_process');
  try{cp.execFileSync(process.execPath,['.github/scripts/visual-audit-v73.cjs'],{stdio:'inherit'});}catch(e){console.error('V7.3 verification failed');process.exitCode=1;}
- try{cp.execFileSync(process.execPath,['.github/scripts/visual-audit-v74.cjs'],{stdio:'inherit'});}catch(e){console.error('V7.4 verification failed');process.exitCode=1;}
+ try{cp.execFileSync(process.execPath,['.github/scripts/visual-audit-v74.cjs'],{stdio:'inherit'});}catch(e){console.error('V7.4 visual proof failed');process.exitCode=1;}
 
  const required=['apercu-v7/art/paint.svg','apercu-v7/art/orbit.svg','apercu-v7/art/title-streaks.svg','assets/logo/pwg-watteau.png','photos/IMG_20261023_111417.jpg','photos/IMG_20261023_111919.jpg','photos/IMG_20261023_120024.jpg','photos/IMG_20261023_111415.jpg','photos/IMG_20261023_120827.jpg','photos/IMG_20261023_121010.jpg'];
  const missing=required.filter(p=>!fs.existsSync(p));
