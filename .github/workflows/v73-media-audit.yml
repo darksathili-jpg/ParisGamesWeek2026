@@ -14,8 +14,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Prepare Pillow
-        run: python3 -m pip install --break-system-packages Pillow
+      - name: Prepare image and video inspection
+        run: python3 -m pip install --break-system-packages Pillow imageio-ffmpeg
       - name: Build labeled photo contact sheets
         run: python3 .github/scripts/v73-contact-sheet.py
       - name: Keep visual evidence
