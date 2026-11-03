@@ -22,7 +22,11 @@ const path = require('path');
    const mobileGate=width<=900 && (!cards || cards.y>height+80 || metrics.title.y<0 || metrics.hero.bottom>height);
    const brokenCardImages=metrics.brokenImmediate;
    const cardCountFail=metrics.cardCount!==5;
-   const result={name,width,height,http:response.status(),...metrics,clippedCards:clipped,mobileFirstCardsTooLow:mobileGate,cardCountFail,pageErrors:errors};
+   const badCard=await page.locator('.level').evaluateAll(cards=>cards.some(card=>{
+      const r=card.getBoundingClientRect(),img=card.querySelector('img').getBoundingClientRect(),cap=card.querySelector('.level-desc').getBoundingClientRect();
+      return img.height<23 || cap.height<21 || img.top<r.top-2 || img.bottom>r.bottom+2 || cap.bottom>r.bottom+2;
+   }));
+   const result={name,width,height,http:response.status(),...metrics,clippedCards:clipped,mobileFirstCardsTooLow:mobileGate,cardCountFail,badCard,pageErrors:errors};
    report.push(result);console.log(JSON.stringify(result));
    await page.close();
  }
@@ -56,5 +60,5 @@ const path = require('path');
  const required=['apercu-v7/art/paint.svg','apercu-v7/art/orbit.svg','apercu-v7/art/title-streaks.svg','assets/logo/pwg-watteau.png','photos/IMG_20261023_111417.jpg','photos/IMG_20261023_111919.jpg','photos/IMG_20261023_120024.jpg','photos/IMG_20261023_111415.jpg','photos/IMG_20261023_120827.jpg','photos/IMG_20261023_121010.jpg'];
  const missing=required.filter(p=>!fs.existsSync(p));
  fs.writeFileSync('visual-proof-v7/v73/report.json',JSON.stringify({report,missing},null,2));
- if(missing.length||report.some(r=>r.http!==200||r.brokenImmediate.length||r.overflow||r.clippedCards||r.mobileFirstCardsTooLow||r.cardCountFail||r.pageErrors.length))process.exitCode=1;
+ if(missing.length||report.some(r=>r.http!==200||r.brokenImmediate.length||r.overflow||r.clippedCards||r.mobileFirstCardsTooLow||r.cardCountFail||r.badCard||r.pageErrors.length))process.exitCode=1;
 })().catch(e=>{console.error(e);process.exitCode=1});
