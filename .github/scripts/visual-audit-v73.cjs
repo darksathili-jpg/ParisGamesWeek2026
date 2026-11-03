@@ -26,6 +26,32 @@ const path = require('path');
    report.push(result);console.log(JSON.stringify(result));
    await page.close();
  }
+
+ const page2=await browser.newPage({viewport:{width:1440,height:900}});
+ await page2.goto('http://127.0.0.1:8788/apercu-v73/');
+ const checks={};
+ checks.gallery26=(await page2.locator('#gallery button').count())===26;
+ await page2.locator('[data-filter="tech"]').click();
+ checks.filterTech=(await page2.locator('#gallery button').count())===5;
+ await page2.locator('#gallery button').first().click();
+ checks.dialog=await page2.locator('#viewer').evaluate(el=>el.open);
+ await page2.locator('#next-photo').click();
+ checks.nextPhoto=(await page2.locator('#photo-title').textContent()).startsWith('2 /');
+ await page2.locator('#close-viewer').click();
+ checks.closeDialog=await page2.locator('#viewer').evaluate(el=>!el.open);
+ await page2.locator('.level[data-level="replay"]').click();
+ checks.progress=(await page2.locator('#percent').textContent()).includes('20');
+ await page2.reload();
+ checks.persist=(await page2.locator('#percent').textContent()).includes('20');
+ await page2.locator('#grade').click();
+ checks.quizIncomplete=(await page2.locator('#grade-result').textContent()).includes('trois questions');
+ for(const [q,v] of [['q1','b'],['q2','a'],['q3','c']])await page2.locator('input[name="'+q+'"][value="'+v+'"]').check();
+ await page2.locator('#grade').click();
+ checks.quizCorrect=(await page2.locator('#grade-result').textContent()).includes('3 / 3');
+ fs.writeFileSync('visual-proof-v7/v73/interactions.json',JSON.stringify(checks,null,2));
+ await page2.close();
+ if(Object.values(checks).some(v=>!v))process.exitCode=1;
+
  await browser.close();
  const required=['apercu-v7/art/paint.svg','apercu-v7/art/orbit.svg','apercu-v7/art/title-streaks.svg','assets/logo/pwg-watteau.png','photos/IMG_20261023_111417.jpg','photos/IMG_20261023_111919.jpg','photos/IMG_20261023_120024.jpg','photos/IMG_20261023_111415.jpg','photos/IMG_20261023_120827.jpg','photos/IMG_20261023_121010.jpg'];
  const missing=required.filter(p=>!fs.existsSync(p));
