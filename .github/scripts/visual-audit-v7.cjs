@@ -1,3 +1,4 @@
+// Verify V7 and V7.3 side by side after the card layout correction.
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
